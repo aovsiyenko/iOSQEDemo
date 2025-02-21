@@ -137,5 +137,5 @@ This project is licensed under the **MIT License**.
 ---
 
 ## ✨ **Author:**
-**Valeriya Bazylenko** - [@flowber.ca](https://instagram.com/flowber.ca)
+**Alex Ovsiyenko** - 
 
