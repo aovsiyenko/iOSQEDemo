@@ -94,8 +94,8 @@ Command + U
 ## 🌳 **Environment Variables**
 ### **.env File Structure:**
 ```env
-USERNAME=testuser
-PASSWORD=password
+USERNAME=...
+PASSWORD=...
 INVALID_USERNAME=wronguser
 INVALID_PASSWORD=wrongpassword
 ```
@@ -122,20 +122,7 @@ INVALID_PASSWORD=wrongpassword
 
 ---
 
-## 🤝 **Contributing:**
-1. **Fork the repository**.
-2. **Create a new branch:** `git checkout -b feature/YourFeature`.
-3. **Commit your changes:** `git commit -m 'Add your feature'`.
-4. **Push to the branch:** `git push origin feature/YourFeature`.
-5. **Create a Pull Request**.
-
----
-
-## 📄 **License:**
-This project is licensed under the **MIT License**.
-
----
 
 ## ✨ **Author:**
-**Alex Ovsiyenko** - 
+**Alex Ovsiyenko**
 
