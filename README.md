@@ -1,2 +1,2 @@
 # iOSQEDemo
-Demo project for XCTest
+Demo project for XCTest, TBD
