@@ -17,11 +17,15 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # ✅ Install Dependencies (CocoaPods and xcpretty)
+      # ✅ Install Dependencies (CocoaPods and xcpretty if needed)
       - name: Install Dependencies
         run: |
           sudo gem install cocoapods xcpretty
-          pod install
+          if [ -f "Podfile" ]; then
+            pod install
+          else
+            echo "⚠️ No Podfile found, skipping CocoaPods installation."
+          fi
 
       # ✅ Auto-detect the Scheme
       - name: Set Default Scheme
@@ -64,7 +68,11 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo gem install cocoapods xcpretty
-          pod install
+          if [ -f "Podfile" ]; then
+            pod install
+          else
+            echo "⚠️ No Podfile found, skipping CocoaPods installation."
+          fi
 
       # ✅ Auto-detect the Scheme
       - name: Set Default Scheme
