@@ -1,10 +1,12 @@
 name: iOS CI Pipeline
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+
+env:
+  SCHEME: "iOSQEDemo"
+  DEVICE: "iPhone 14"
 
 jobs:
   unit-tests:
@@ -27,20 +29,10 @@ jobs:
             echo "⚠️ No Podfile found, skipping CocoaPods installation."
           fi
 
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json)
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['project']['schemes'][0]")
-          echo $default > default
-          echo "Using default scheme: $default"
-
       - name: Run Unit Tests
-        env:
-          scheme: ${{ 'default' }}
         run: |
-          device="iPhone 14"
-          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest"
-          xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest" | xcpretty --test --report junit
+          xcodebuild build-for-testing -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
+          xcodebuild test-without-building -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest" | xcpretty --test --report junit
 
       - name: Upload Unit Test Results
         uses: actions/upload-artifact@v4
@@ -69,24 +61,13 @@ jobs:
             echo "⚠️ No Podfile found, skipping CocoaPods installation."
           fi
 
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json)
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['project']['schemes'][0]")
-          echo $default > default
-          echo "Using default scheme: $default"
-
       - name: Build for UI Testing
-        env:
-          scheme: ${{ 'default' }}
         run: |
-          device="iPhone 14"
-          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest"
+          xcodebuild build-for-testing -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
 
       - name: Run UI Tests
         run: |
-          device="iPhone 14"
-          xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest" | xcpretty --test --report junit
+          xcodebuild test-without-building -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest" | xcpretty --test --report junit
 
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
