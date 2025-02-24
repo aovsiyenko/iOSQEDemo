@@ -8,7 +8,7 @@ env:
   SCHEME: "iOSQEDemo"
   DEVICE: "iPhone 16"
   PLATFORM: "iOS Simulator"
-  OS_VERSION: "18.2"
+  OS_VERSION: "18.1"
 
 jobs:
   build:
@@ -25,11 +25,11 @@ jobs:
       - name: List Available Simulators
         run: xcrun simctl list devices
 
-      - name: Create iPhone 16 Simulator
+      - name: Use Existing iPhone 16 Simulator
         run: |
-          xcrun simctl delete "iOSQEDemo-iPhone-16" || true
-          xcrun simctl create "iOSQEDemo-iPhone-16" com.apple.CoreSimulator.SimDeviceType.iPhone-16 com.apple.CoreSimulator.SimRuntime.iOS-18-2
-          xcrun simctl boot "iOSQEDemo-iPhone-16"
+          device="iPhone 16"
+          xcrun simctl shutdown all
+          xcrun simctl boot "$device"
           xcrun simctl list devices
 
       - name: Build
