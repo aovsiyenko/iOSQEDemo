@@ -17,10 +17,10 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # ✅ Install Dependencies (CocoaPods or Swift Packages)
+      # ✅ Install Dependencies (CocoaPods and xcpretty)
       - name: Install Dependencies
         run: |
-          brew install cocoapods
+          brew install --cask cocoapods
           gem install xcpretty
           pod install
 
@@ -56,7 +56,7 @@ jobs:
       # ✅ Install Dependencies
       - name: Install Dependencies
         run: |
-          brew install cocoapods
+          brew install --cask cocoapods
           gem install xcpretty
           pod install
 
