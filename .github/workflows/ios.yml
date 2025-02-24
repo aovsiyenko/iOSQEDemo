@@ -20,22 +20,29 @@ jobs:
       # ✅ Install Dependencies (CocoaPods and xcpretty)
       - name: Install Dependencies
         run: |
-          brew install --cask cocoapods
-          gem install xcpretty
+          sudo gem install cocoapods xcpretty
           pod install
+
+      # ✅ Auto-detect the Scheme
+      - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default | cat >default
+          echo Using default scheme: $default
 
       # ✅ Build and Test Unit Tests
       - name: Run Unit Tests
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
         run: |
-          xcodebuild \
-            -workspace iOSQEDemo.xcworkspace \
-            -scheme iOSQEDemo \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' \
-            -enableCodeCoverage YES \
-            test | xcpretty --test --report junit
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          if [ $scheme = default ]; then scheme=$(cat default); fi
+          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=$platform,name=$device"
+          xcodebuild test-without-building -scheme "$scheme" -destination "platform=$platform,name=$device" | xcpretty --test --report junit
 
-      # ✅ Upload Unit Test Results (Updated to v4)
+      # ✅ Upload Unit Test Results (v4)
       - name: Upload Unit Test Results
         uses: actions/upload-artifact@v4
         with:
@@ -56,32 +63,35 @@ jobs:
       # ✅ Install Dependencies
       - name: Install Dependencies
         run: |
-          brew install --cask cocoapods
-          gem install xcpretty
+          sudo gem install cocoapods xcpretty
           pod install
+
+      # ✅ Auto-detect the Scheme
+      - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default | cat >default
+          echo Using default scheme: $default
 
       # ✅ Build App for UI Testing
       - name: Build for UI Testing
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
         run: |
-          xcodebuild \
-            -workspace iOSQEDemo.xcworkspace \
-            -scheme iOSQEDemo \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' \
-            clean build-for-testing
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          if [ $scheme = default ]; then scheme=$(cat default); fi
+          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=$platform,name=$device"
 
       # ✅ Run UI Tests
       - name: Run UI Tests
         run: |
-          xcodebuild \
-            -workspace iOSQEDemo.xcworkspace \
-            -scheme iOSQEDemoUITests \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' \
-            -enableCodeCoverage YES \
-            test-without-building | xcpretty --test --report junit
+          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          if [ $scheme = default ]; then scheme=$(cat default); fi
+          xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device" | xcpretty --test --report junit
 
-      # ✅ Upload UI Test Results (Updated to v4)
+      # ✅ Upload UI Test Results (v4)
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
         with:
