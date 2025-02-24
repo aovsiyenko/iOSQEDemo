@@ -20,7 +20,8 @@ jobs:
       # ✅ Install Dependencies (CocoaPods or Swift Packages)
       - name: Install Dependencies
         run: |
-          brew install cocoapods xcpretty
+          brew install cocoapods
+          gem install xcpretty
           pod install
 
       # ✅ Build and Test Unit Tests
@@ -55,7 +56,8 @@ jobs:
       # ✅ Install Dependencies
       - name: Install Dependencies
         run: |
-          brew install cocoapods xcpretty
+          brew install cocoapods
+          gem install xcpretty
           pod install
 
       # ✅ Build App for UI Testing
