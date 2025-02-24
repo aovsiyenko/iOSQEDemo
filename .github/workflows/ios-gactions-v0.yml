@@ -6,11 +6,13 @@ on:
 
 env:
   SCHEME: "iOSQEDemo"
-  DEVICE: "iPhone 16"
+  DEVICE: "iPhone 14" # Use a simulator that is more likely to be available
+  PLATFORM: "iOS Simulator"
+  OS_VERSION: "16.4" # Specify a stable iOS version compatible with the GitHub runner
 
 jobs:
   build:
-    name: Build and Test using iPhone 16 simulator
+    name: Build and Test using iPhone 14 simulator
     runs-on: macos-14
 
     steps:
@@ -20,17 +22,19 @@ jobs:
       - name: Select Xcode Version
         run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['project']['schemes'][0]")
-          echo $default > default
-          echo "Using default scheme: $default"
+      - name: List Available Simulators
+        run: xcrun simctl list devices
 
       - name: Build
         run: |
-          xcodebuild build-for-testing -scheme "$SCHEME" -project iOSQEDemo.xcodeproj -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
+          xcodebuild build-for-testing \
+            -scheme "$SCHEME" \
+            -project iOSQEDemo.xcodeproj \
+            -destination "platform=$PLATFORM,name=$DEVICE,OS=$OS_VERSION"
 
       - name: Test
         run: |
-          xcodebuild test-without-building -scheme "$SCHEME" -project iOSQEDemo.xcodeproj -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
+          xcodebuild test-without-building \
+            -scheme "$SCHEME" \
+            -project iOSQEDemo.xcodeproj \
+            -destination "platform=$PLATFORM,name=$DEVICE,OS=$OS_VERSION"
