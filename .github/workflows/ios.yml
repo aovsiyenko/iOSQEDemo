@@ -2,22 +2,22 @@ name: iOS CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  # 🚦 Job 1: Build and Run Unit Tests
   unit-tests:
     name: Build and Run Unit Tests
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
-      # ✅ Checkout the Code
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # ✅ Install Dependencies (CocoaPods and xcpretty if needed)
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
       - name: Install Dependencies
         run: |
           sudo gem install cocoapods xcpretty
@@ -27,44 +27,41 @@ jobs:
             echo "⚠️ No Podfile found, skipping CocoaPods installation."
           fi
 
-      # ✅ Auto-detect the Scheme
       - name: Set Default Scheme
         run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
+          scheme_list=$(xcodebuild -list -json)
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['project']['schemes'][0]")
+          echo $default > default
+          echo "Using default scheme: $default"
 
-      # ✅ Build and Test Unit Tests
       - name: Run Unit Tests
         env:
           scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
+          platform: 'iOS Simulator'
         run: |
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | sed -e "s/ Simulator$//")
           if [ $scheme = default ]; then scheme=$(cat default); fi
           xcodebuild build-for-testing -scheme "$scheme" -destination "platform=$platform,name=$device"
           xcodebuild test-without-building -scheme "$scheme" -destination "platform=$platform,name=$device" | xcpretty --test --report junit
 
-      # ✅ Upload Unit Test Results (v4)
       - name: Upload Unit Test Results
         uses: actions/upload-artifact@v4
         with:
           name: UnitTestResults
           path: test-output/
 
-  # 🚦 Job 2: Build and Run UI Tests
   ui-tests:
     name: Build and Run UI Tests
-    runs-on: macos-latest
+    runs-on: macos-14
     needs: unit-tests
 
     steps:
-      # ✅ Checkout the Code
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # ✅ Install Dependencies
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
       - name: Install Dependencies
         run: |
           sudo gem install cocoapods xcpretty
@@ -74,32 +71,28 @@ jobs:
             echo "⚠️ No Podfile found, skipping CocoaPods installation."
           fi
 
-      # ✅ Auto-detect the Scheme
       - name: Set Default Scheme
         run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
+          scheme_list=$(xcodebuild -list -json)
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.read)['project']['schemes'][0]")
+          echo $default > default
+          echo "Using default scheme: $default"
 
-      # ✅ Build App for UI Testing
       - name: Build for UI Testing
         env:
           scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
+          platform: 'iOS Simulator'
         run: |
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | sed -e "s/ Simulator$//")
           if [ $scheme = default ]; then scheme=$(cat default); fi
           xcodebuild build-for-testing -scheme "$scheme" -destination "platform=$platform,name=$device"
 
-      # ✅ Run UI Tests
       - name: Run UI Tests
         run: |
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
+          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | sed -e "s/ Simulator$//")
           if [ $scheme = default ]; then scheme=$(cat default); fi
           xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device" | xcpretty --test --report junit
 
-      # ✅ Upload UI Test Results (v4)
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
         with:
