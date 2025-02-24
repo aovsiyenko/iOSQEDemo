@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Select Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Pin to a specific Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Pin to a specific Xcode version (adjust as needed)
 
       - name: Install Dependencies
         run: |
@@ -30,25 +30,22 @@ jobs:
           fi
 
       - name: Set Default Scheme
-        id: set_scheme  # Use an ID to easily access the output
+        id: set_scheme
         run: |
           scheme_list=$(xcodebuild -list -json)
-          default=$(echo "$scheme_list" | jq -r '.project.schemes[0]') # Use jq for JSON parsing
-          echo "::set-output name=scheme::$default" # Set the output variable
+          default=$(echo "$scheme_list" | jq -r '.project.schemes[0]')
+          echo "::set-output name=scheme::$default"
 
-      - name: Select Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Pin to a specific Xcode version
+      - name: Boot Simulator (Important!)
+        run: xcrun simctl boot "iPhone 14" # Boot the simulator *before* building
 
-      - name: Install iOS 18.2 Simulator
-        run: xcrun simctl install_runtime ios-18-2 # Or the correct iOS version
-
-      - name: List available simulators
+      - name: List available simulators (for debugging)
         run: xcrun simctl list devices
 
       - name: Build and Test ${{ matrix.test_type }} Tests
         env:
-          SCHEME: ${{ steps.set_scheme.outputs.scheme }} # Access the scheme using the ID
-          DESTINATION: "platform=iOS Simulator,name=iPhone 14,OS=18.2" # Or use a specific UDID if needed
+          SCHEME: ${{ steps.set_scheme.outputs.scheme }}
+          DESTINATION: ${{ matrix.destination }} # Use the matrix destination
         run: |
           if [[ "${{ matrix.test_type }}" == "unit" ]]; then
             xcodebuild build-for-testing -scheme "$SCHEME" -destination "$DESTINATION"
@@ -61,5 +58,5 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.test_type }}-test-results # Differentiate artifact names
+          name: ${{ matrix.test_type }}-test-results
           path: test-output/
