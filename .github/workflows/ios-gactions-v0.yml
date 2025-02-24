@@ -25,23 +25,22 @@ jobs:
       - name: List Available Simulators
         run: xcrun simctl list devices
 
-      - name: Use Existing iPhone 16 Simulator
+      - name: Boot iPhone 16 Simulator
         run: |
-          device="iPhone 16"
           xcrun simctl shutdown all
-          xcrun simctl boot "$device"
+          xcrun simctl boot "iPhone 16"
           xcrun simctl list devices
 
       - name: Build
         run: |
           xcodebuild build-for-testing \
-            -scheme "$SCHEME" \
+            -scheme "iOSQEDemo" \
             -project iOSQEDemo.xcodeproj \
-            -destination "platform=$PLATFORM,name=$DEVICE,OS=$OS_VERSION"
+            -destination "platform=iOS Simulator,name=iPhone 16,OS=18.1"
 
       - name: Test
         run: |
           xcodebuild test-without-building \
-            -scheme "$SCHEME" \
+            -scheme "iOSQEDemo" \
             -project iOSQEDemo.xcodeproj \
-            -destination "platform=$PLATFORM,name=$DEVICE,OS=$OS_VERSION"
+            -destination "platform=iOS Simulator,name=iPhone 16,OS=18.1"
