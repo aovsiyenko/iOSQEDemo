@@ -1,8 +1,6 @@
 name: iOS CI Pipeline
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -35,21 +33,31 @@ jobs:
           default=$(echo "$scheme_list" | jq -r '.project.schemes[0]')
           echo "::set-output name=scheme::$default"
 
+      - name: Debug: Print Scheme
+        run: |
+          echo "Scheme: ${{ steps.set_scheme.outputs.scheme }}"
+
       - name: Create Simulator (Important!)
         run: |
-          xcrun simctl create "iPhone 14" com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.Platform.iOS # Create the simulator
+          xcrun simctl create "iPhone 14" com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.Platform.iOS
 
       - name: Boot Simulator
         run: xcrun simctl boot "iPhone 14"
 
-      - name: List available simulators (for debugging)
+      - name: Debug: List available simulators (after creation and boot)
         run: xcrun simctl list devices
+
+      - name: Debug: Print Destination (from matrix)
+        run: |
+          echo "Destination (from matrix): ${{ matrix.destination }}"
 
       - name: Build and Test ${{ matrix.test_type }} Tests
         env:
           SCHEME: ${{ steps.set_scheme.outputs.scheme }}
           DESTINATION: ${{ matrix.destination }}
         run: |
+          echo "Debug: Using SCHEME: $SCHEME"
+          echo "Debug: Using DESTINATION: $DESTINATION"
           if [[ "${{ matrix.test_type }}" == "unit" ]]; then
             xcodebuild build-for-testing -scheme "$SCHEME" -destination "$DESTINATION"
             xcodebuild test-without-building -scheme "$SCHEME" -destination "$DESTINATION" | xcpretty --test --report junit
