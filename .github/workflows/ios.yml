@@ -37,12 +37,10 @@ jobs:
       - name: Run Unit Tests
         env:
           scheme: ${{ 'default' }}
-          platform: 'iOS Simulator'
         run: |
-          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | sed -e "s/ Simulator$//")
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=$platform,name=$device"
-          xcodebuild test-without-building -scheme "$scheme" -destination "platform=$platform,name=$device" | xcpretty --test --report junit
+          device="iPhone 14"
+          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest"
+          xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest" | xcpretty --test --report junit
 
       - name: Upload Unit Test Results
         uses: actions/upload-artifact@v4
@@ -81,17 +79,14 @@ jobs:
       - name: Build for UI Testing
         env:
           scheme: ${{ 'default' }}
-          platform: 'iOS Simulator'
         run: |
-          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | sed -e "s/ Simulator$//")
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=$platform,name=$device"
+          device="iPhone 14"
+          xcodebuild build-for-testing -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest"
 
       - name: Run UI Tests
         run: |
-          device=$(xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | sed -e "s/ Simulator$//")
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device" | xcpretty --test --report junit
+          device="iPhone 14"
+          xcodebuild test-without-building -scheme "$scheme" -destination "platform=iOS Simulator,name=$device,OS=latest" | xcpretty --test --report junit
 
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
