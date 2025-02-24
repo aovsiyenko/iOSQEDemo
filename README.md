@@ -64,7 +64,6 @@ iOSQEDemo/
 - [Introduction to Unit Testing in Swift](https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods)
 
 ### **2. XCUITest (UI Testing)**
-- [Apple UI Testing Guide]([https://developer.apple.com/documentation/xctest/ui_testing](https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/testing_with_xcode/chapters/09-ui_testing.html))
 - [Page Object Model in XCUITest](https://www.hackingwithswift.com/articles/148/xcode-ui-testing-cheat-sheet)
 
 ### **3. SwiftUI**
