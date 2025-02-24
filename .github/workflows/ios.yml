@@ -34,9 +34,9 @@ jobs:
             -enableCodeCoverage YES \
             test | xcpretty --test --report junit
 
-      # ✅ Upload Unit Test Results
+      # ✅ Upload Unit Test Results (Updated to v4)
       - name: Upload Unit Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: UnitTestResults
           path: test-output/
@@ -45,7 +45,7 @@ jobs:
   ui-tests:
     name: Build and Run UI Tests
     runs-on: macos-latest
-    needs: unit-tests # ✅ Run only if unit-tests job is successful
+    needs: unit-tests
 
     steps:
       # ✅ Checkout the Code
@@ -79,9 +79,9 @@ jobs:
             -enableCodeCoverage YES \
             test-without-building | xcpretty --test --report junit
 
-      # ✅ Upload UI Test Results
+      # ✅ Upload UI Test Results (Updated to v4)
       - name: Upload UI Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: UITestResults
           path: test-output/
