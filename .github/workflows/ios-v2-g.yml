@@ -36,10 +36,19 @@ jobs:
           default=$(echo "$scheme_list" | jq -r '.project.schemes[0]') # Use jq for JSON parsing
           echo "::set-output name=scheme::$default" # Set the output variable
 
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Pin to a specific Xcode version
+
+      - name: Install iOS 18.2 Simulator
+        run: xcrun simctl install_runtime ios-18-2 # Or the correct iOS version
+
+      - name: List available simulators
+        run: xcrun simctl list devices
+
       - name: Build and Test ${{ matrix.test_type }} Tests
         env:
           SCHEME: ${{ steps.set_scheme.outputs.scheme }} # Access the scheme using the ID
-          DESTINATION: ${{ matrix.destination }}
+          DESTINATION: "platform=iOS Simulator,name=iPhone 14,OS=18.2" # Or use a specific UDID if needed
         run: |
           if [[ "${{ matrix.test_type }}" == "unit" ]]; then
             xcodebuild build-for-testing -scheme "$SCHEME" -destination "$DESTINATION"
