@@ -12,15 +12,14 @@ jobs:
     runs-on: macos-14
     strategy:
       matrix:
-        destination: ["platform=iOS Simulator,name=iPhone 14,OS=latest"] # Define destinations in a matrix
-        test_type: ["unit", "ui"]  # Run both unit and UI tests in the same job
+        destination: ["platform=iOS Simulator,name=iPhone 14,OS=latest"] # Or specify OS if needed
+        test_type: ["unit", "ui"]
 
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Select Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Pin to a specific Xcode version (adjust as needed)
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Or the version you need
 
       - name: Install Dependencies
         run: |
@@ -36,8 +35,12 @@ jobs:
           default=$(echo "$scheme_list" | jq -r '.project.schemes[0]')
           echo "::set-output name=scheme::$default"
 
-      - name: Boot Simulator (Important!)
-        run: xcrun simctl boot "iPhone 14" # Boot the simulator *before* building
+      - name: Create Simulator (Important!)
+        run: |
+          xcrun simctl create "iPhone 14" com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.Platform.iOS # Create the simulator
+
+      - name: Boot Simulator
+        run: xcrun simctl boot "iPhone 14"
 
       - name: List available simulators (for debugging)
         run: xcrun simctl list devices
@@ -45,7 +48,7 @@ jobs:
       - name: Build and Test ${{ matrix.test_type }} Tests
         env:
           SCHEME: ${{ steps.set_scheme.outputs.scheme }}
-          DESTINATION: ${{ matrix.destination }} # Use the matrix destination
+          DESTINATION: ${{ matrix.destination }}
         run: |
           if [[ "${{ matrix.test_type }}" == "unit" ]]; then
             xcodebuild build-for-testing -scheme "$SCHEME" -destination "$DESTINATION"
