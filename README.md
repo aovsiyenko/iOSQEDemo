@@ -22,7 +22,7 @@ This project demonstrates:
 
 ### **2. Clone the Repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/iOSQEDemo.git
+git clone https://github.com/aovsiyenko/iOSQEDemo.git
 cd iOSQEDemo
 ```
 
