@@ -11,11 +11,14 @@ env:
 jobs:
   build:
     name: Build and Test using iPhone 16 simulator
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
       - name: Set Default Scheme
         run: |
@@ -25,15 +28,9 @@ jobs:
           echo "Using default scheme: $default"
 
       - name: Build
-        env:
-          scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
         run: |
-          xcodebuild build-for-testing -scheme "$scheme" -project iOSQEDemo.xcodeproj -destination "platform=$platform,name=$DEVICE,OS=latest"
+          xcodebuild build-for-testing -scheme "$SCHEME" -project iOSQEDemo.xcodeproj -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
 
       - name: Test
-        env:
-          scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
         run: |
-          xcodebuild test-without-building -scheme "$scheme" -project iOSQEDemo.xcodeproj -destination "platform=$platform,name=$DEVICE,OS=latest"
+          xcodebuild test-without-building -scheme "$SCHEME" -project iOSQEDemo.xcodeproj -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
