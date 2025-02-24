@@ -1,0 +1,87 @@
+name: iOS CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # 🚦 Job 1: Build and Run Unit Tests
+  unit-tests:
+    name: Build and Run Unit Tests
+    runs-on: macos-latest
+
+    steps:
+      # ✅ Checkout the Code
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # ✅ Install Dependencies (CocoaPods or Swift Packages)
+      - name: Install Dependencies
+        run: |
+          brew install cocoapods xcpretty
+          pod install
+
+      # ✅ Build and Test Unit Tests
+      - name: Run Unit Tests
+        run: |
+          xcodebuild \
+            -workspace iOSQEDemo.xcworkspace \
+            -scheme iOSQEDemo \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' \
+            -enableCodeCoverage YES \
+            test | xcpretty --test --report junit
+
+      # ✅ Upload Unit Test Results
+      - name: Upload Unit Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: UnitTestResults
+          path: test-output/
+
+  # 🚦 Job 2: Build and Run UI Tests
+  ui-tests:
+    name: Build and Run UI Tests
+    runs-on: macos-latest
+    needs: unit-tests # ✅ Run only if unit-tests job is successful
+
+    steps:
+      # ✅ Checkout the Code
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # ✅ Install Dependencies
+      - name: Install Dependencies
+        run: |
+          brew install cocoapods xcpretty
+          pod install
+
+      # ✅ Build App for UI Testing
+      - name: Build for UI Testing
+        run: |
+          xcodebuild \
+            -workspace iOSQEDemo.xcworkspace \
+            -scheme iOSQEDemo \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' \
+            clean build-for-testing
+
+      # ✅ Run UI Tests
+      - name: Run UI Tests
+        run: |
+          xcodebuild \
+            -workspace iOSQEDemo.xcworkspace \
+            -scheme iOSQEDemoUITests \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.0' \
+            -enableCodeCoverage YES \
+            test-without-building | xcpretty --test --report junit
+
+      # ✅ Upload UI Test Results
+      - name: Upload UI Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: UITestResults
+          path: test-output/
