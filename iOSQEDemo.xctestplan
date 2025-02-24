@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "109EC002-1EAE-45B8-BB18-4FD963686644",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:iOSQEDemo.xcodeproj",
+      "identifier" : "FA17805D2D68E448006A1C35",
+      "name" : "iOSQEDemo"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:iOSQEDemo.xcodeproj",
+        "identifier" : "FA1781942D69192F006A1C35",
+        "name" : "UnitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:iOSQEDemo.xcodeproj",
+        "identifier" : "FA1782182D6965D9006A1C35",
+        "name" : "iOSQEDemoUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
