@@ -6,7 +6,8 @@ on:
 
 env:
   SCHEME: "iOSQEDemo"
-  DEVICE: "iPhone 14"
+  DEVICE: "iPhone 13"
+  OS: "16.4"
 
 jobs:
   unit-tests:
@@ -31,8 +32,8 @@ jobs:
 
       - name: Run Unit Tests
         run: |
-          xcodebuild build-for-testing -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
-          xcodebuild test-without-building -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest" | xcpretty --test --report junit
+          xcodebuild build-for-testing -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS"
+          xcodebuild test-without-building -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS" | xcpretty --test --report junit
 
       - name: Upload Unit Test Results
         uses: actions/upload-artifact@v4
@@ -63,11 +64,11 @@ jobs:
 
       - name: Build for UI Testing
         run: |
-          xcodebuild build-for-testing -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest"
+          xcodebuild build-for-testing -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS"
 
       - name: Run UI Tests
         run: |
-          xcodebuild test-without-building -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=latest" | xcpretty --test --report junit
+          xcodebuild test-without-building -scheme "$SCHEME" -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS" | xcpretty --test --report junit
 
       - name: Upload UI Test Results
         uses: actions/upload-artifact@v4
