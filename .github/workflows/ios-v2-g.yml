@@ -10,14 +10,14 @@ jobs:
     runs-on: macos-14
     strategy:
       matrix:
-        destination: ["platform=iOS Simulator,name=iPhone 14,OS=latest"] # Or specify OS if needed
+        destination: ["platform=iOS Simulator,name=iPhone 14,OS=latest"]
         test_type: ["unit", "ui"]
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Select Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app # Or the version you need
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
       - name: Install Dependencies
         run: |
