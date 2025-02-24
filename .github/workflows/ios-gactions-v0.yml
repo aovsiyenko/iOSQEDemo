@@ -6,13 +6,13 @@ on:
 
 env:
   SCHEME: "iOSQEDemo"
-  DEVICE: "iPhone 14" # Use a simulator that is more likely to be available
+  DEVICE: "iPhone 16"
   PLATFORM: "iOS Simulator"
-  OS_VERSION: "16.4" # Specify a stable iOS version compatible with the GitHub runner
+  OS_VERSION: "18.2"
 
 jobs:
   build:
-    name: Build and Test using iPhone 14 simulator
+    name: Build and Test using iPhone 16 simulator
     runs-on: macos-14
 
     steps:
@@ -24,6 +24,13 @@ jobs:
 
       - name: List Available Simulators
         run: xcrun simctl list devices
+
+      - name: Create iPhone 16 Simulator
+        run: |
+          xcrun simctl delete "iOSQEDemo-iPhone-16" || true
+          xcrun simctl create "iOSQEDemo-iPhone-16" com.apple.CoreSimulator.SimDeviceType.iPhone-16 com.apple.CoreSimulator.SimRuntime.iOS-18-2
+          xcrun simctl boot "iOSQEDemo-iPhone-16"
+          xcrun simctl list devices
 
       - name: Build
         run: |
