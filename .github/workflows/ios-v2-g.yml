@@ -1,8 +1,6 @@
 name: iOS CI Pipeline
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -28,17 +26,6 @@ jobs:
             pod install
           fi
 
-      - name: Set Default Scheme
-        id: set_scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json)
-          default=$(echo "$scheme_list" | jq -r '.project.schemes[0]')
-          echo "::set-output name=scheme::$default"
-
-      - name: Debug: Print Scheme
-        run: |
-          echo "Scheme: ${{ steps.set_scheme.outputs.scheme }}"
-
       - name: Create Simulator (Important!)
         run: |
           xcrun simctl create "iPhone 14" com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.Platform.iOS
@@ -54,15 +41,15 @@ jobs:
           echo "Destination (from matrix): ${{ matrix.destination }}"
 
       - name: Build and Test ${{ matrix.test_type }} Tests
-        run: | # No env needed here
-          echo "Debug: Using SCHEME: ${{ steps.set_scheme.outputs.scheme }}"
+        run: |
+          echo "Debug: Using SCHEME: iOSQEDemo" # Hardcoded scheme
           echo "Debug: Using DESTINATION: ${{ matrix.destination }}"
           if [[ "${{ matrix.test_type }}" == "unit" ]]; then
-            xcodebuild build-for-testing -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}"
-            xcodebuild test-without-building -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}" | xcpretty --test --report junit
+            xcodebuild build-for-testing -scheme "iOSQEDemo" -destination "${{ matrix.destination }}"
+            xcodebuild test-without-building -scheme "iOSQEDemo" -destination "${{ matrix.destination }}" | xcpretty --test --report junit
           elif [[ "${{ matrix.test_type }}" == "ui" ]]; then
-            xcodebuild build-for-testing -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}"
-            xcodebuild test-without-building -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}" | xcpretty --test --report junit
+            xcodebuild build-for-testing -scheme "iOSQEDemo" -destination "${{ matrix.destination }}"
+            xcodebuild test-without-building -scheme "iOSQEDemo" -destination "${{ matrix.destination }}" | xcpretty --test --report junit
           fi
 
       - name: Upload Test Results
