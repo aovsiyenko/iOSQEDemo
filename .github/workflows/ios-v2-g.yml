@@ -1,6 +1,8 @@
 name: iOS CI Pipeline
 
 on:
+  push:
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -52,18 +54,15 @@ jobs:
           echo "Destination (from matrix): ${{ matrix.destination }}"
 
       - name: Build and Test ${{ matrix.test_type }} Tests
-        env:
-          SCHEME: ${{ steps.set_scheme.outputs.scheme }}
-          DESTINATION: ${{ matrix.destination }}
-        run: |
-          echo "Debug: Using SCHEME: $SCHEME"
-          echo "Debug: Using DESTINATION: $DESTINATION"
+        run: | # No env needed here
+          echo "Debug: Using SCHEME: ${{ steps.set_scheme.outputs.scheme }}"
+          echo "Debug: Using DESTINATION: ${{ matrix.destination }}"
           if [[ "${{ matrix.test_type }}" == "unit" ]]; then
-            xcodebuild build-for-testing -scheme "$SCHEME" -destination "$DESTINATION"
-            xcodebuild test-without-building -scheme "$SCHEME" -destination "$DESTINATION" | xcpretty --test --report junit
+            xcodebuild build-for-testing -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}"
+            xcodebuild test-without-building -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}" | xcpretty --test --report junit
           elif [[ "${{ matrix.test_type }}" == "ui" ]]; then
-            xcodebuild build-for-testing -scheme "$SCHEME" -destination "$DESTINATION"
-            xcodebuild test-without-building -scheme "$SCHEME" -destination "$DESTINATION" | xcpretty --test --report junit
+            xcodebuild build-for-testing -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}"
+            xcodebuild test-without-building -scheme "${{ steps.set_scheme.outputs.scheme }}" -destination "${{ matrix.destination }}" | xcpretty --test --report junit
           fi
 
       - name: Upload Test Results
